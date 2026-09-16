@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>UYGULAMALARIMIZ</title>
+  
+  <!-- iOS PWA Ayarları -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="UYGULAMALARIMIZ">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <!-- Sürükle Bırak Kütüphanesi -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+  <style>
+    :root {
+      --wallpaper: radial-gradient(circle at 10% 20%, #1e2640 0%, #0c0f17 90%);
+      --glass-bg: rgba(255, 255, 255, 0.12);
+      --glass-border: rgba(255, 255, 255, 0.18);
+      --glass-shadow: 0 10px 32px 0 rgba(0, 0, 0, 0.45);
+      --text-main: #ffffff;
+      --text-sub: rgba(255, 255, 255, 0.65);
+      --accent: #007aff;
+      --accent-glow: rgba(0, 122, 255, 0.45);
+      --danger: #ff3b30;
+      --icon-size: 64px;
+      --grid-cols: 4;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      background: var(--wallpaper);
+      min-height: 100vh;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: env(safe-area-inset-top, 24px) 16px 110px;
+      overflow-x: hidden;
+    }
+
+    /* En Üst Ortalı Başlık Alanı */
+    .top-hero {
+      width: 100%;
+      max-width: 440px;
+      text-align: center;
+      padding: 16px 8px 10px;
+    }
+
+    .main-app-title {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #fff;
+      text-shadow: 0 3px 12px rgba(0,0,0,0.6);
+    }
+
+    .hero-datetime {
+      font-size: 13px;
+      color: var(--text-sub);
+      font-weight: 500;
+      margin-top: 4px;
+      letter-spacing: 0.2px;
+    }
+
+    /* iOS Arama Çubuğu */
+    .search-wrapper {
+      width: 100%;
+      max-width: 440px;
+      margin: 10px 0 14px;
+      padding: 0 4px;
+    }
+
+    .search-bar {
+      width: 100%;
+      height: 40px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      gap: 10px;
+    }
+
+    .search-bar svg {
+      width: 17px;
+      height: 17px;
+      stroke: var(--text-sub);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .search-bar input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 14.5px;
+      width: 100%;
+    }
+
+    .search-bar input::placeholder {
+      color: var(--text-sub);
+    }
+
+    /* Uygulama Izgarası (Grid) */
+    .app-viewport {
+      width: 100%;
+      max-width: 440px;
+      flex: 1;
+    }
+
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(var(--grid-cols), 1fr);
+      gap: 22px 12px;
+      padding: 10px 4px 30px;
+    }
+
+    .app-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .icon-container {
+      width: var(--icon-size);
+      height: var(--icon-size);
+      border-radius: calc(var(--icon-size) * 0.26);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: transform 0.15s ease;
+    }
+
+    .app-item:active .icon-container {
+      transform: scale(0.88);
+      filter: brightness(0.8);
+    }
+
+    .icon-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: #fff;
+    }
+
+    .icon-fallback {
+      display: none;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #2c3e50, #1a1c29);
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .app-title {
+      margin-top: 7px;
+      font-size: 11.5px;
+      font-weight: 500;
+      color: #fff;
+      text-align: center;
+      max-width: 80px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+      letter-spacing: -0.2px;
+    }
+
+    /* Silme Rozeti ve Titreme */
+    .delete-badge {
+      display: none;
+      position: absolute;
+      top: -6px;
+      right: -4px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--danger);
+      color: white;
+      font-size: 13px;
+      font-weight: bold;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+      z-index: 10;
+    }
+
+    .edit-mode .delete-badge {
+      display: flex;
+    }
+
+    .edit-mode .icon-container {
+      animation: iosJiggle 0.24s infinite alternate ease-in-out;
+    }
+
+    .edit-mode .app-item:nth-child(even) .icon-container {
+      animation-delay: 0.12s;
+    }
+
+    @keyframes iosJiggle {
+      0% { transform: rotate(-2deg); }
+      100% { transform: rotate(2deg); }
+    }
+
+    /* Alt Hızlı İşlem Çubuğu */
+    .bottom-bar-wrapper {
+      position: fixed;
+      bottom: env(safe-area-inset-bottom, 20px);
+      width: calc(100% - 32px);
+      max-width: 380px;
+      height: 70px;
+      border-radius: 35px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08));
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(35px);
+      -webkit-backdrop-filter: blur(35px);
+      box-shadow: var(--glass-shadow), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: space-evenly;
+      padding: 0 10px;
+      z-index: 50;
+    }
+
+    .bar-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.85);
+      cursor: pointer;
+      padding: 6px 14px;
+      border-radius: 20px;
+      transition: all 0.2s ease;
+    }
+
+    .bar-btn svg {
+      width: 22px;
+      height: 22px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.1;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .bar-btn span {
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: -0.1px;
+    }
+
+    .bar-btn:active {
+      transform: scale(0.9);
+      color: #fff;
+    }
+
+    .bar-btn.active-mode {
+      background: rgba(0, 122, 255, 0.25);
+      border: 1px solid rgba(0, 122, 255, 0.5);
+      color: #5ac8fa;
+      box-shadow: 0 0 18px var(--accent-glow);
+    }
+
+    .bar-btn-center {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.1));
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 8px 18px;
+    }
+
+    /* Modallar */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 200;
+    }
+
+    .modal-sheet {
+      width: 100%;
+      max-width: 440px;
+      background: #181d26;
+      border-radius: 28px 28px 0 0;
+      border-top: 1px solid var(--glass-border);
+      padding: 24px;
+      box-shadow: 0 -12px 40px rgba(0,0,0,0.6);
+      animation: slideSheet 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideSheet {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-sheet h2 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      font-weight: 700;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .form-group select option {
+      background: #181d26;
+    }
+
+    .sheet-btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .btn-action {
+      flex: 1;
+      padding: 14px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-secondary { background: rgba(255, 255, 255, 0.12); color: #fff; }
+
+    /* In-App Browser */
+    .app-browser-frame {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: #000;
+      z-index: 500;
+      display: none;
+      flex-direction: column;
+      animation: openApp 0.25s ease-out;
+    }
+
+    @keyframes openApp {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .browser-topbar {
+      height: 52px;
+      background: rgba(20, 24, 33, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      padding-top: env(safe-area-inset-top, 0px);
+      box-sizing: content-box;
+    }
+
+    .btn-back-portal {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid var(--glass-border);
+      padding: 6px 12px;
+      border-radius: 18px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .browser-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      max-width: 140px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .browser-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .browser-action-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--glass-border);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .browser-action-btn svg {
+      width: 15px;
+      height: 15px;
+      stroke: #fff;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .browser-iframe {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- En Üst Ortalı Başlık ve Tarih/Saat -->
+  <header class="top-hero">
+    <h1 class="main-app-title">UYGULAMALARIMIZ</h1>
+    <div class="hero-datetime" id="datetime-display">...</div>
+  </header>
+
+  <!-- iOS Arama -->
+  <div class="search-wrapper">
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" id="search-input" placeholder="Uygulama Ara..." autocomplete="off">
+    </div>
+  </div>
+
+  <!-- Ana Uygulama Listesi -->
+  <main class="app-viewport">
+    <div class="app-grid" id="main-grid"></div>
+  </main>
+
+  <!-- Alt Kontrol Paneli -->
+  <nav class="bottom-bar-wrapper">
+    <button class="bar-btn" id="btn-edit">
+      <svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+      <span id="edit-btn-text">Düzenle</span>
+    </button>
+
+    <button class="bar-btn bar-btn-center" id="btn-add">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      <span>Yeni Ekle</span>
+    </button>
+
+    <button class="bar-btn" id="btn-settings">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      <span>Ayarlar</span>
+    </button>
+  </nav>
+
+  <!-- Modallar -->
+  <div class="modal-backdrop" id="modal-add">
+    <div class="modal-sheet">
+      <h2>Yeni Uygulama Ekle</h2>
+      <div class="form-group">
+        <label>Uygulama Adı</label>
+        <input type="text" id="add-title" placeholder="Örn: KAÇ SORU GELDİ?" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>Web Adresi (URL)</label>
+        <input type="url" id="add-url" placeholder="https://..." autocomplete="off">
+      </div>
+      <div class="sheet-btn-row">
+        <button class="btn-action btn-secondary" onclick="closeModal('modal-add')">Vazgeç</button>
+        <button class="btn-action btn-primary" id="btn-save-app">Ekle</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-settings">
+    <div class="modal-sheet">
+      <h2>Görünüm ve Yedek</h2>
+      
+      <div class="form-group">
+        <label>Sütun Sayısı</label>
+        <select id="setting-cols">
+          <option value="3">3 Sütun (Daha Geniş)</option>
+          <option value="4" selected>4 Sütun (iOS Standart)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>İkon Boyutu</label>
+        <select id="setting-size">
+          <option value="58px">Küçük (58px)</option>
+          <option value="64px" selected>Standart (64px)</option>
+          <option value="72px">Büyük (72px)</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-top: 18px;">
+        <label>Veri Yedekleme & Aktarma</label>
+        <div style="display:flex; gap:10px;">
+          <button class="btn-action btn-secondary" onclick="exportData()" style="padding:10px;">Yedek İndir (JSON)</button>
+          <label class="btn-action btn-secondary" style="padding:10px; text-align:center; cursor:pointer;">
+            Yedek Yükle
+            <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importData(event)">
+          </label>
+        </div>
+      </div>
+
+      <div class="sheet-btn-row">
+        <button class="btn-action btn-primary" onclick="closeModal('modal-settings')">Tamam</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- In-App Browser -->
+  <div class="app-browser-frame" id="app-browser">
+    <div class="browser-topbar">
+      <button class="btn-back-portal" id="btn-close-browser">
+        ‹ Menüye Dön
+      </button>
+      <span class="browser-title" id="browser-current-title">Uygulama</span>
+      <div class="browser-actions">
+        <button class="browser-action-btn" id="btn-open-external" title="Safari'de Aç">
+          <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+        </button>
+      </div>
+    </div>
+    <iframe class="browser-iframe" id="browser-iframe" src="" allow="clipboard-read; clipboard-write"></iframe>
+  </div>
+
+  <script>
+    const DEFAULT_GRID_APPS = [
+      { id: "g1", title: "ÖDEV-VER", url: "https://odevver.com" },
+      { id: "g2", title: "SORU AVCISI", url: "https://soruavcisi.com" }
+    ];
+
+    let gridApps = JSON.parse(localStorage.getItem("ios_portal_apps_v4")) || DEFAULT_GRID_APPS;
+    let isEditMode = false;
+    let currentActiveUrl = "";
+
+    function updateDateTime() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString("tr-TR", { hour: '2-digit', minute: '2-digit' });
+      const dateStr = now.toLocaleDateString("tr-TR", { weekday: 'long', day: 'numeric', month: 'long' });
+      document.getElementById("datetime-display").textContent = `${dateStr} • ${timeStr}`;
+    }
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
+
+    function getCandidateIcons(url) {
+      try {
+        const parsed = new URL(url);
+        const baseUrl = parsed.origin + parsed.pathname.replace(/\/$/, "");
+        const domain = parsed.hostname;
+
+        return [
+          `${baseUrl}/logo.png`,
+          `${baseUrl}/icon.png`,
+          `${parsed.origin}/logo.png`,
+          `${parsed.origin}/icon.png`,
+          `https://icons.duckduckgo.com/ip3/${domain}.ico`,
+          `https://www.google.com/s2/favicons?domain=${domain}&sz=128`
+        ];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function createIconElement(app) {
+      const card = document.createElement("div");
+      card.className = "app-item";
+      card.dataset.id = app.id;
+      
+      const candidates = getCandidateIcons(app.url);
+      const initialSrc = candidates[0] || "";
+      const candidatesJson = JSON.stringify(candidates.slice(1));
+      const firstLetter = (app.title || "U").charAt(0).toUpperCase();
+
+      card.innerHTML = `
+        <div class="delete-badge" onclick="deleteItem(event, '${app.id}')">✕</div>
+        <div class="icon-container">
+          <img class="icon-img" src="${initialSrc}" 
+               data-candidates='${candidatesJson}' 
+               onerror="handleFallback(this)" 
+               alt="${app.title}">
+          <div class="icon-fallback">${firstLetter}</div>
+        </div>
+        <span class="app-title">${app.title}</span>
+      `;
+
+      card.addEventListener("click", () => {
+        if (isEditMode) return;
+        openInAppBrowser(app.url, app.title);
+      });
+
+      return card;
+    }
+
+    window.handleFallback = function(img) {
+      try {
+        let list = JSON.parse(img.getAttribute("data-candidates") || "[]");
+        if (list.length > 0) {
+          const next = list.shift();
+          img.setAttribute("data-candidates", JSON.stringify(list));
+          img.src = next;
+        } else {
+          img.style.display = "none";
+          img.nextElementSibling.style.display = "flex";
+        }
+      } catch(e) {
+        img.style.display = "none";
+        img.nextElementSibling.style.display = "flex";
+      }
+    };
+
+    function renderPortal() {
+      const gridEl = document.getElementById("main-grid");
+      const searchQuery = document.getElementById("search-input").value.toLowerCase();
+
+      gridEl.innerHTML = "";
+
+      gridApps
+        .filter(app => app.title.toLowerCase().includes(searchQuery))
+        .forEach(app => gridEl.appendChild(createIconElement(app)));
+    }
+
+    function openInAppBrowser(url, title) {
+      currentActiveUrl = url;
+      document.getElementById("browser-current-title").textContent = title;
+      document.getElementById("browser-iframe").src = url;
+      document.getElementById("app-browser").style.display = "flex";
+    }
+
+    document.getElementById("btn-close-browser").addEventListener("click", () => {
+      document.getElementById("app-browser").style.display = "none";
+      document.getElementById("browser-iframe").src = "";
+    });
+
+    document.getElementById("btn-open-external").addEventListener("click", () => {
+      if (currentActiveUrl) window.open(currentActiveUrl, "_blank");
+    });
+
+    new Sortable(document.getElementById("main-grid"), {
+      animation: 200,
+      disabled: true,
+      onEnd: function() {
+        const order = Array.from(document.querySelectorAll("#main-grid .app-item")).map(el => el.dataset.id);
+        gridApps.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+        saveData();
+      }
+    });
+
+    const btnEdit = document.getElementById("btn-edit");
+    const editBtnText = document.getElementById("edit-btn-text");
+    btnEdit.addEventListener("click", () => {
+      isEditMode = !isEditMode;
+      document.body.classList.toggle("edit-mode", isEditMode);
+      btnEdit.classList.toggle("active-mode", isEditMode);
+      editBtnText.textContent = isEditMode ? "Bitti" : "Düzenle";
+      
+      const sortable = Sortable.get(document.getElementById("main-grid"));
+      if (sortable) sortable.option("disabled", !isEditMode);
+    });
+
+    window.deleteItem = function(e, id) {
+      e.stopPropagation();
+      gridApps = gridApps.filter(a => a.id !== id);
+      saveData();
+      renderPortal();
+    };
+
+    document.getElementById("search-input").addEventListener("input", renderPortal);
+
+    window.openModal = id => document.getElementById(id).style.display = "flex";
+    window.closeModal = id => document.getElementById(id).style.display = "none";
+
+    document.getElementById("btn-add").addEventListener("click", () => {
+      document.getElementById("add-title").value = "";
+      document.getElementById("add-url").value = "";
+      openModal("modal-add");
+    });
+
+    document.getElementById("btn-settings").addEventListener("click", () => openModal("modal-settings"));
+
+    document.getElementById("btn-save-app").addEventListener("click", () => {
+      const title = document.getElementById("add-title").value.trim();
+      let url = document.getElementById("add-url").value.trim();
+
+      if (!title || !url) return alert("Lütfen ad ve web adresi girin.");
+      if (!url.startsWith("http")) url = "https://" + url;
+
+      const newApp = { id: "app_" + Date.now(), title, url };
+      gridApps.push(newApp);
+
+      saveData();
+      renderPortal();
+      closeModal("modal-add");
+    });
+
+    document.getElementById("setting-cols").addEventListener("change", e => {
+      document.documentElement.style.setProperty("--grid-cols", e.target.value);
+    });
+
+    document.getElementById("setting-size").addEventListener("change", e => {
+      document.documentElement.style.setProperty("--icon-size", e.target.value);
+    });
+
+    window.exportData = function() {
+      const blob = new Blob([JSON.stringify(gridApps, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `uygulamalarimiz_yedek_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+    };
+
+    window.importData = function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const imported = JSON.parse(evt.target.result);
+          if (Array.isArray(imported)) {
+            gridApps = imported;
+            saveData();
+            renderPortal();
+            alert("Yedek başarıyla yüklendi!");
+            closeModal("modal-settings");
+          }
+        } catch(err) {
+          alert("Geçersiz yedek dosyası!");
+        }
+      };
+      reader.readAsText(file);
+    };
+
+    function saveData() {
+      localStorage.setItem("ios_portal_apps_v4", JSON.stringify(gridApps));
+    }
+
+    renderPortal();
+  </script>
+</body>
+</html>
