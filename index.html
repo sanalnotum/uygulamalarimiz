@@ -9,7 +9,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="UYGULAMALARIMIZ">
-  <link rel="apple-touch-icon" href="logo.png">
+  <link rel="apple-touch-icon" href="logo.png?v=4">
+  <link rel="icon" type="image/png" href="logo.png?v=4">
 
   <!-- Sürükle Bırak Kütüphanesi -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
@@ -513,7 +514,7 @@
       <h2>Yeni Uygulama Ekle</h2>
       <div class="form-group">
         <label>Uygulama Adı</label>
-        <input type="text" id="add-title" placeholder="Örn: KAÇ SORU GELDİ?" autocomplete="off">
+        <input type="text" id="add-title" placeholder="Örn: MATEMATİK DÜNYASI" autocomplete="off">
       </div>
       <div class="form-group">
         <label>Web Adresi (URL)</label>
@@ -581,12 +582,26 @@
   </div>
 
   <script>
+    // BAŞLANGIÇ LİSTESİ:
     const DEFAULT_GRID_APPS = [
-      { id: "g1", title: "ÖDEV-VER", url: "https://odevver.com" },
-      { id: "g2", title: "SORU AVCISI", url: "https://soruavcisi.com" }
+      { id: "app-1", title: "ÖDEV-VER", url: "https://odevver.com" },
+      { id: "app-2", title: "SORU AVCISI", url: "https://soruavcisi.com" },
+      { id: "app-3", title: "ÇİZİK", url: "https://sanalnotum.github.io/cizik/" },
+      { id: "app-4", title: "KAÇ SORU GELDİ", url: "https://sanalnotum.github.io/kacsorugeldi/" },
+      { id: "app-5", title: "MAARİF DERSİM", url: "https://sanalnotum.github.io/maarifdersim/" },
+      { id: "app-6", title: "MAARİF MAT PRO", url: "https://sanalnotum.github.io/maarifmatpro/" },
+      { id: "app-7", title: "MATH", url: "https://sanalnotum.github.io/math/" },
+      { id: "app-8", title: "TÜY", url: "https://sanalnotum.github.io/tuy/" },
+      { id: "app-9", title: "TEST-YAP", url: "https://sanalnotum.github.io/test-yap/" }
     ];
 
-    let gridApps = JSON.parse(localStorage.getItem("ios_portal_apps_v4")) || DEFAULT_GRID_APPS;
+    // v6 sürümü ile eski önbellek sıfırlanır ve tüm yeni logolar taze olarak çekilir
+    let gridApps = JSON.parse(localStorage.getItem("uygulamalarimiz_db_v6"));
+    if (!gridApps || gridApps.length === 0) {
+      gridApps = DEFAULT_GRID_APPS;
+      localStorage.setItem("uygulamalarimiz_db_v6", JSON.stringify(gridApps));
+    }
+
     let isEditMode = false;
     let currentActiveUrl = "";
 
@@ -599,6 +614,7 @@
     setInterval(updateDateTime, 1000);
     updateDateTime();
 
+    // icon-192.png ve icon-512.png destekli gelişmiş logo arama zinciri
     function getCandidateIcons(url) {
       try {
         const parsed = new URL(url);
@@ -607,8 +623,12 @@
 
         return [
           `${baseUrl}/logo.png`,
+          `${baseUrl}/icon-192.png`,                         // ÇİZİK ve PWA'lar için doğrudan yol
+          `${baseUrl}/icon-512.png`,
           `${baseUrl}/icon.png`,
+          `${baseUrl}/favicon.png`,
           `${parsed.origin}/logo.png`,
+          `${parsed.origin}/icon-192.png`,
           `${parsed.origin}/icon.png`,
           `https://icons.duckduckgo.com/ip3/${domain}.ico`,
           `https://www.google.com/s2/favicons?domain=${domain}&sz=128`
@@ -787,7 +807,7 @@
     };
 
     function saveData() {
-      localStorage.setItem("ios_portal_apps_v4", JSON.stringify(gridApps));
+      localStorage.setItem("uygulamalarimiz_db_v6", JSON.stringify(gridApps));
     }
 
     renderPortal();
